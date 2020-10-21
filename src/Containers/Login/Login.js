@@ -1,14 +1,22 @@
-import React , { useMemo, useState} from 'react'
+import React , { useCallback, useMemo, useState} from 'react'
 import classes from './Login.css'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
 import Spinner from '../../components/Spinner/Spinner'
 import { Redirect } from 'react-router'
 import * as actionType from '../../Store/action/index'
-import { connect } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
 
 
 const login = React.memo(props=>{
+
+    const loading  = useSelector(state=>state.auth.loading)
+    const error  = useSelector(state=>state.auth.error)
+    const isAuth  = useSelector(state=>state.auth.token !==null )
+
+    const dispatch = useDispatch();
+    const onFormSubmited = (email,password)=> dispatch(actionType.authInit(email,password))
+
     const [loginState,setState] = useState({
         controls:{
             email:{
@@ -91,7 +99,7 @@ const login = React.memo(props=>{
 
     const submitedHandeler = (event)=>{
         event.preventDefault(); 
-        props.onFormSubmited(
+        onFormSubmited(
             loginState.controls.email.value,
             loginState.controls.password.value,
         )
@@ -120,35 +128,35 @@ const login = React.memo(props=>{
                 ); 
                    
         })
-        let loading = 
+        let Loading = 
         <form onSubmit={submitedHandeler}>
                 {form}
                 <Button elementType="input" type="Success">Login</Button>
         </form>
-    if(props.loading)
-    loading= <Spinner />
+    if(loading)
+    Loading= <Spinner />
 
 
 
     const errorMsg = useMemo(()=>{
     console.log('Memo error')
     let errorMessage = null
-        if(props.error){  
+        if(error){  
             errorMessage = (<p style={{
             color:'red'
-            }}>Error! : {props.error}</p>)
+            }}>Error! : {error}</p>)
             }
         return errorMessage
-    },[props.error])
+    },[error])
     
 
    
     const redirect = useMemo(()=>{
         console.log('Memo isAuth')
         let redirect = null
-        if(props.isAuth){
+        if(isAuth){
             redirect = <Redirect to="/"/>
-            console.log(props.isAuth)    
+            console.log(isAuth)    
         }
     return redirect
     },[])
@@ -159,24 +167,14 @@ const login = React.memo(props=>{
         return(
             <div className={classes.Login}>
                 {redirect}
-                {loading}
+                {Loading}
                 {errorMsg}
             </div>
         );
     }
 )
 
-const mapStateToProps = state => {
-    return{
-        loading:state.loading,
-        error:state.error,
-        isAuth : state.token !==null 
-    }
-}
 
-const mapDispatchToProps = dispatch =>{
-    return{
-        onFormSubmited : (email,password)=> dispatch(actionType.authInit(email,password))
-    }
-}
-export default connect(mapStateToProps,mapDispatchToProps)(login)
+
+
+export default login

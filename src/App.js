@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useEffect } from 'react';
+import {useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router';
 import './App.css';
 import Layout from './components/Layout/Layout';
@@ -9,10 +9,12 @@ import * as actionType from './Store/action/index'
 import Logout from './Containers/Logout/Logout'
 import Tasks from './Containers/Tasks/Task1'
 const app = React.memo(props=>{
- 
+  const isAuth = useSelector(state => state.auth.token !==null)
+  const dispatch = useDispatch();
+  const onTryLogin = useCallback(()=> dispatch(actionType.AuthCheckState()),[])
   useEffect(()=>{
-    props.onTryLogin();
-  },[])
+    onTryLogin();
+  },[onTryLogin])
   
     let ReRouter = (
       <Switch>
@@ -20,7 +22,7 @@ const app = React.memo(props=>{
         <Redirect to='/Login'/>
       </Switch>
     )
-    if(props.isAuth)
+    if(isAuth)
     ReRouter = (
       <React.Fragment>
       <Route path="/logout" component={Logout}/>
@@ -39,17 +41,9 @@ const app = React.memo(props=>{
   }
 );
 
-const mapStateToProps = state =>{
-  return{
-    isAuth : state.token !==null
-  }
-}
-const mapDispatchToProps = dispatch =>{
-  return{
-    onTryLogin : () => dispatch(actionType.AuthCheckState())
-  }
-}
-export default withRouter(connect(mapStateToProps,mapDispatchToProps) (app));
+
+
+export default withRouter(app);
 
 
 

@@ -3,49 +3,54 @@ import * as actionType from '../../Store/action/actionType'
 import classes from './Tasks.css'
 import Task from '../../components/Task/Task'
 import firebase from '../../util/firebase'
-import { connect } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import * as action from '../../Store/action/index'
 
 
 
-const tasksReducer = (CurrentTasksState, action)=>{
-    switch(action.type){
-        case actionType.INIT_TASKS:
-            return action.tasks
-        default:
-            return
-    }
-}
-
-
+// const tasksReducer = (CurrentTasksState, action)=>{
+//     switch(action.type){
+//         case actionType.INIT_TASKS:
+//             return action.tasks
+//         default:
+//             return
+//     }
+// }
 
 const tasks = React.memo ( props =>{
     const inputRef = useRef();
-    const userID = useSelector(state => state.userID)
-    const [TasksState , dispatchTasks] = useReducer(tasksReducer,{})
+    // const [TasksState , dispatchTasks] = useReducer(tasksReducer,{})
     const [InputValue , setInputValue] = useState({value:''})
+
+
+    const dispatch = useDispatch();
+    const onInitTasks = useCallback((todos)=> dispatch(action.taskInit(todos)),[])
+    const userID = useSelector(state => state.auth.userID)
+
+    const TasksState = useSelector(state=>state.task.tasks)
 
 
     useEffect(()=>{
         console.log('[INIT TASKS ]')
-        const toDoRef  = firebase.database().ref('Tasks').child(props.userID);
+        const toDoRef  = firebase.database().ref('Tasks').child(userID);
         toDoRef.on('value', (snapshot) => {
              const todos = snapshot.val();
-             dispatchTasks({type:actionType.INIT_TASKS,tasks:{...todos} })
+             onInitTasks(todos);
        })
-    },[])
+    },[onInitTasks])
 
 
     const addTask = useCallback(()=>{
         console.log('[ADD TASK]')
         let newTask = {content:InputValue.value,status:false};
-        const toDoRef  = firebase.database().ref('Tasks').child(props.userID);
+        const toDoRef  = firebase.database().ref('Tasks').child(userID);
             toDoRef.push(newTask)
             setInputValue({value:''})
     },[InputValue])
     
     const doneTask = useCallback( key =>{
         console.log('[DONE TASK]')
-        const doneChild = firebase.database().ref("Tasks").child(props.userID).child(key);
+        const doneChild = firebase.database().ref("Tasks").child(userID).child(key);
         doneChild.update({
         status:!TasksState[key].status
     })
@@ -53,7 +58,7 @@ const tasks = React.memo ( props =>{
 
     const deeleteTask = useCallback(key =>{
         console.log('[DELETE TASK]')
-        const deleteChild = firebase.database().ref('Tasks').child(props.userID).child(key)
+        const deleteChild = firebase.database().ref('Tasks').child(userID).child(key)
         deleteChild.remove();
     },[])
 
@@ -97,9 +102,9 @@ return(
 );
 })
 
-const mapStateToProps = state =>{
-    return {
-        userID:state.userID
-    }
-}
-export default connect(mapStateToProps) (tasks)
+// const mapStateToProps = state =>{
+//     return {
+//         userID:state.userID
+//     }
+// }
+export default tasks

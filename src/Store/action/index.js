@@ -5,3 +5,8 @@ export {
  } from './auth'
 
 
+ export {
+taskInit
+ } from './task'
+
+
