@@ -1,0 +1,45 @@
+.Task{
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    margin-bottom:2px;
+}
+.Task p {
+    color:black;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    flex: 2;
+    text-align: justify;
+}
+.Delete,.Done{
+    background: transparent;
+    border:none;
+    outline: none;
+    cursor: pointer;
+    transition: all ease-out 300ms;
+}
+.Delete{
+    color:black
+}
+.Done{
+    color:lightgray;
+}
+
+.success{
+    color:green;
+}
+.TaskSuccess{
+    background-color: lightgreen;
+}
+
+.Delete:hover{
+    color:red
+}
+
+.deleteParag{
+    text-decoration: line-through;
+}
